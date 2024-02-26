@@ -17,7 +17,7 @@ session = Session()
 #   UPDATE TABLE student SET name ='bob'; -- UPDATE changes a field
 #   INSERT INTO student VALUES (), (); -- INSERT INTO adds VALUES or rows to the table
 # DELETE 
-#   DELETE FROM table WHERE name = 'bob'; -- 'delete specifict records'
+#   DELETE FROM table WHERE name = 'bob'; -- 'delete specific records'
 #   DROP TABLE student; -- 'drop entire tables'
 #   TRUNCATE TABLE student; -- 'truncate all records but keep the table'
 

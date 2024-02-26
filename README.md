@@ -1,10 +1,14 @@
-This is a simple SQL query repository.
+This is a Structured Query Language (SQL) repository.
 
-XAMPP was used to serve a mySQL database locally. (http://localhost/phpmyadmin/)
+XAMPP was used to serve a MySQL database locally. (http://localhost/phpmyadmin/)
 
-Here's the CREATE TABLE and INSERT INTO SQL statement:
+MySQL is a popular Relational DataBase Management System (RDBMS). It is usually considered the best place to start before using other RDBMS such as MS SQL Server, PostgreSQL, etc.
+
+Here's a CREATE TABLE and INSERT INTO SQL statement. (You should also look at the CRUD file):
 
 ![XAMPP create table](/img/create_table_XAMPP.png)
 
-We used python to query and kept the sqlalchemy query in text form. See run_query.py
+We use python to query and keep the sqlalchemy query in text form as opposed to using methods like .WHERE(), .GROUPBY(), etc. See run_query.py and additional_SQL_queries.py
+
+But developing in a .sql file can still be nice for autocomplete, linting, etc. 
 

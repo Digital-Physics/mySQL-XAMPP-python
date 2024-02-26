@@ -1,12 +1,3 @@
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from dotenv import dotenv_values
-
-env_vars = dotenv_values(".env")
-engine = create_engine(f"mysql+pymysql://{env_vars['APP_USER']}:{env_vars['PASSWORD']}@{env_vars['HOST']}:{env_vars['DB_PORT']}/{env_vars['DATABASE']}")
-Session = sessionmaker(bind=engine)
-session = Session()
-
 sql_query = """
 SELECT * FROM city
 WHERE countryCode = 'USA' 
@@ -78,7 +69,7 @@ WHERE length = (SELECT MIN(length) FROM cityLength)
 ORDER BY city
 LIMIT 1)
 
-UNION ALL -- This combines not just unique, but both all values from both selects
+UNION ALL -- This combines not just unique, all values from both selects, (so the intersection twice)
 
 (SELECT city, length
 FROM cityLength
@@ -489,7 +480,7 @@ WITH cte AS (SELECT h.hacker_id AS id, COUNT(c.challenge_id) AS counts
         JOIN Challenges AS c ON h.hacker_id = c.hacker_id
         GROUP BY h.hacker_id),
 
--- second one is ued for WHERE filtering in main query. COUNT(COUNT()) to find ties (less than the max) (these can't be included)
+-- second one is ued for WHERE filtering in main query. "Scores to remove". GROUP BY COUNT(COUNT()) to find ties (less than the max) that can't be included.
 cte2 AS (
     SELECT counts AS counts2, COUNT(*)
     FROM cte
@@ -507,11 +498,42 @@ ORDER BY cte.counts DESC, h.hacker_id
 ;
 """
 
+# missing Chris 244 is 152 in our list, but we double counted 92 
+# 66274 Chris 68420 92
+# 66274 Chris 68420 92
+"""
+WITH Cte AS (
+    SELECT hacker_id, challenge_id, MAX(score) AS max_score
+    FROM Submissions
+    GROUP BY hacker_id, challenge_id
+)
+
+SELECT h.hacker_id, h.name, SUM(s.score) AS total_score
+FROM Hackers AS h
+JOIN Submissions AS s ON h.hacker_id = s.hacker_id
+JOIN Cte ON s.hacker_id = Cte.hacker_id AND s.challenge_id = Cte.challenge_id
+WHERE s.score = Cte.max_score
+GROUP BY h.hacker_id, h.name
+HAVING SUM(s.score) > 0
+ORDER BY total_score DESC, h.hacker_id;
 """
 
+# still getting errors on MySQL possibly related to CTEs even though we've used them elsewhere. is version < 8.0
+# Use MS SQL Server on HackerRank instead
 """
+WITH Cte_helper AS (
+    SELECT hacker_id, challenge_id, MAX(score) AS max_score
+    FROM Submissions
+    GROUP BY hacker_id, challenge_id
+),
 
-result = session.execute(text(sql_query))
-print(result, type(result))
+Cte AS (SELECT hacker_id, SUM(max_score) AS total
+        FROM Cte_helper
+        WHERE max_score <> 0
+        GROUP BY hacker_id)
 
-session.close()
+SELECT h.hacker_id, h.name, cte.total
+FROM Hackers AS h
+JOIN Cte ON h.hacker_id = Cte.hacker_id
+ORDER BY total DESC, h.hacker_id;
+"""
